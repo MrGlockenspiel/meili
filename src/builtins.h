@@ -903,6 +903,24 @@ BUILTIN(throw) {
     }
 }
 
+// >r
+BUILTIN(rpush) {
+    forth_type_t val = stack_pop(&forth->data_stack);
+    stack_push(&forth->control_stack, val);
+}
+
+// r@
+BUILTIN(rfetch) {
+    forth_type_t val = stack_peek(&forth->control_stack);
+    stack_push(&forth->data_stack, val);
+}
+
+// r>
+BUILTIN(rpop) {
+    forth_type_t val = stack_pop(&forth->control_stack);
+    stack_push(&forth->data_stack, val);
+}
+
 #pragma GCC diagnostic pop
 
 void forth_register_all_builtins(forth_t *forth) {
@@ -1012,6 +1030,9 @@ void forth_register_all_builtins(forth_t *forth) {
     REGISTER("f0>=", fgteqz);
     REGISTER("bye", bye);
     REGISTER("throw", throw);
+    REGISTER(">r", rpush);
+    REGISTER("r@", rfetch);
+    REGISTER("r>", rpop);
 }
 
 #undef REGISTER
