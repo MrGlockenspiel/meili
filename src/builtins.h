@@ -345,7 +345,7 @@ BUILTIN(load_print) {
     if (addr.tag != FORTH_REF) {
         FORTH_ERROR_FUNCTION("Error: Storing to non-reference type\n");
     }
-    forth_type_t val = forth->heap[addr.ref];
+    forth_type_t val = *((forth_type_t *) addr.ref);
     switch (val.tag) {
     case FORTH_I64:
         FORTH_OUTPUT_FUNCTION("%lld ", (long long) val.int64);
@@ -590,7 +590,8 @@ BUILTIN(period) {
 // variable
 BUILTIN(variable) {
     char *variable_name = words[++(*i)];
-    forth_type_t *addr = &forth->heap[forth->next_address++];
+    forth_type_t *addr = (forth_type_t *) &forth->heap[forth->next_address];
+    forth->next_address += sizeof(forth_type_t);
     addr->tag = FORTH_I64;
     addr->int64 = 0;
     forth_define_variable(forth, variable_name, addr);

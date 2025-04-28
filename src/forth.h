@@ -53,7 +53,7 @@ typedef struct {
     forth_stack_t data_stack;
     forth_stack_t control_stack;
 
-    forth_type_t *heap;
+    uint8_t *heap;
     size_t next_address;
 
     struct trie_node_s *root;
