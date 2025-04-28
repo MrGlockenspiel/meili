@@ -921,6 +921,14 @@ BUILTIN(rpop) {
     stack_push(&forth->data_stack, val);
 }
 
+// ."
+BUILTIN(print) {
+    // read until "
+    while (strcmp(words[++(*i)], "\"") != 0) {
+        FORTH_OUTPUT_FUNCTION("%s ", words[*i]);
+    }
+}
+
 #pragma GCC diagnostic pop
 
 void forth_register_all_builtins(forth_t *forth) {
@@ -1033,6 +1041,7 @@ void forth_register_all_builtins(forth_t *forth) {
     REGISTER(">r", rpush);
     REGISTER("r@", rfetch);
     REGISTER("r>", rpop);
+    REGISTER(".\"", print);
 }
 
 #undef REGISTER
