@@ -930,6 +930,45 @@ BUILTIN(print) {
     }
 }
 
+// cells
+BUILTIN(cells) {
+    forth_type_t val = stack_pop(&forth->data_stack);
+    val.int64 *= sizeof(forth_type_t);
+    stack_push(&forth->data_stack, val);
+}
+
+// allocate
+BUILTIN(allocate) {
+    forth_type_t size = stack_pop(&forth->data_stack);
+    forth_type_t addr = forth_ref((size_t) &forth->next_address);
+
+    forth_type_t ior = forth_i64(0);
+
+    // align to nearest cell
+    size_t alignment = sizeof(forth_type_t);
+
+    switch (size.tag) {
+    case FORTH_REF:
+        forth->next_address += size.ref;
+        forth->next_address =
+            (forth->next_address + alignment - 1) & ~(alignment - 1);
+        break;
+    case FORTH_I64:
+        forth->next_address += (size_t) size.int64;
+        forth->next_address =
+            (forth->next_address + alignment - 1) & ~(alignment - 1);
+        break;
+    default:
+        FORTH_ERROR_FUNCTION("Invalid size type for allocate\n");
+        addr.int64 = 0;
+        ior.int64 = -1;
+        break;
+    }
+
+    stack_push(&forth->data_stack, addr);
+    stack_push(&forth->data_stack, ior);
+}
+
 #pragma GCC diagnostic pop
 
 void forth_register_all_builtins(forth_t *forth) {
@@ -1043,6 +1082,8 @@ void forth_register_all_builtins(forth_t *forth) {
     REGISTER("r@", rfetch);
     REGISTER("r>", rpop);
     REGISTER(".\"", print);
+    REGISTER("cells", cells);
+    REGISTER("allocate", allocate);
 }
 
 #undef REGISTER
